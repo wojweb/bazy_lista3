@@ -1,0 +1,20 @@
+DROP PROCEDURE IF EXISTS zad5c;
+
+
+DELIMITER $$
+
+
+CREATE PROCEDURE zad5c()
+BEGIN
+   
+
+   CREATE TEMPORARY TABLE temp AS (SELECT CONCAT(l.data_urodzenia,' ', p.zawod, ' ', p.pensja) AS dane FROM Pracownicy p INNER JOIN Ludzie l ON p.PESEL = l.PESEL);
+
+   SELECT MAX(dane) FROM temp;
+
+  DROP TEMPORARY TABLE temp;
+
+END$$
+
+DELIMITER ;
+

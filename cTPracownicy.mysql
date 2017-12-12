@@ -1,0 +1,8 @@
+CREATE TABLE Pracownicy(
+   PESEL CHAR(11),
+   zawod VARCHAR(50) NOT NULL,
+   pensja FLOAT UNSIGNED NOT NULL,
+   
+   FOREIGN KEY (PESEL)
+   REFERENCES Ludzie(PESEL)
+);

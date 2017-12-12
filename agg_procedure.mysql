@@ -1,0 +1,46 @@
+DROP PROCEDURE IF EXISTS agg_procedure; 
+
+DELIMITER $$
+
+CREATE PROCEDURE  agg_procedure (INOUT agg VARCHAR(20),INOUT kol  VARCHAR(20), OUT X VARCHAR(20))
+BEGIN
+
+   SET @var='';
+   
+   CASE agg
+	  
+
+	   WHEN "AVG" THEN 
+	  	  SET @text1 = CONCAT('SELECT AVG(',kol,') INTO @var FROM Ludzie');
+		 	 PREPARE stmt FROM @text1; 
+	   WHEN "COUNT" THEN 
+	  	  SET @text1 = CONCAT('SELECT COUNT(DISTINCT ',kol,') INTO @var FROM Ludzie');
+		 	 PREPARE stmt FROM @text1; 
+	   WHEN "SUM" THEN 
+	  	  SET @text1 = CONCAT('SELECT SUM(',kol,') INTO @var FROM Ludzie');
+		 	 PREPARE stmt FROM @text1; 
+	   WHEN "MAX" THEN 
+	  	  SET @text1 = CONCAT('SELECT MAX(',kol,') INTO @var FROM Ludzie');
+		 	 PREPARE stmt FROM @text1; 
+	   WHEN "MIN" THEN 
+	  	  SET @text1 = CONCAT('SELECT MIN(',kol,') INTO @var FROM Ludzie');
+		 	 PREPARE stmt FROM @text1;
+   
+   -- KOD MOŻNA DOWOLNIE ROZSZERZYC O WIECEJ FUNKCJI AGREGUJACYCH, WYPISALEM TYLKO TE, GDYZ TYLKO Z TYCH ZDAZYLO MI SIE KORZYSTAC  
+
+	  ELSE
+		 PREPARE stmt FROM 'SELECT "Użyłeś niepoprawnej funkcji!" AS ERROR';
+   
+   END CASE;
+
+   EXECUTE stmt;
+   SET X = @var;
+   
+   SET @var='';
+   DEALLOCATE PREPARE stmt;
+
+   
+END$$
+
+DELIMITER ;
+	  

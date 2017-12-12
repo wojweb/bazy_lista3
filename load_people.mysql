@@ -1,0 +1,82 @@
+DROP PROCEDURE IF EXISTS load_people;
+
+DELIMITER $$
+
+CREATE PROCEDURE load_people (IN num INT(4))
+BEGIN
+   DECLARE counter INT(4) DEFAULT 0;
+   DECLARE PESEL VARCHAR(11)  DEFAULT '';
+   DECLARE imie VARCHAR(30) DEFAULT '';
+   DECLARE nazwisko VARCHAR(30) DEFAULT '';
+   -- Losowa data urodzenia
+   DECLARE dzien  INT(2) ZEROFILL DEFAULT 0;
+   DECLARE miesiac INT(2) ZEROFILL DEFAULT 0;
+   DECLARE rok INT DEFAULT 0;
+   DECLARE rok_format INT(2) ZEROFILL DEFAULT 0;
+   DECLARE data_urodzenia VARCHAR(20);
+   DECLARE wzrost FLOAT DEFAULT 0;
+   DECLARE waga FLOAT DEFAULT 0;
+   DECLARE rozmiar_buta INT DEFAULT 0;
+   
+   DECLARE wiek INT DEFAULT 0; -- tymczasowa
+   DECLARE liczba_kontrolna INT DEFAULT 0;
+   DECLARE rand1 INT DEFAULT 0;
+   DECLARE rand2 INT DEFAULT 0;
+   DECLARE rand3 INT DEFAULT 0;
+   DECLARE rand4 INT DEFAULT 0;
+
+   WHILE counter < num DO
+	  SET imie = concat('First name #', counter);
+	  SET nazwisko = concat('Last name#', counter);
+
+      SET rok = FLOOR(1950 + (RAND() * (YEAR(CURDATE()) - 1950)));
+	  SET miesiac = FLOOR(1 + (RAND() * 12));
+
+      IF miesiac = 2 THEN
+	  	  SET dzien = FLOOR(1 + (RAND() *  28));
+      ELSEIF miesiac  IN (1, 3, 5, 7, 8, 10, 12) THEN
+	  	  SET dzien = FLOOR(1 + (RAND() * 31));
+      ELSE 
+	  	  SET dzien = FLOOR(1 + (RAND() * 30));
+      END IF;
+	  
+	  SET data_urodzenia = CONCAT(rok, '-', miesiac,'-', dzien); 
+	  SET rand1 = FLOOR(RAND() * 10);
+	  SET rand2 = FLOOR(RAND() * 10);
+	  SET rand3 = FLOOR(RAND() * 10);
+	  SET rand4 = FLOOR(RAND() * 10);
+	  
+	  SET rok_format = MOD(rok,100);
+	  SET liczba_kontrolna = 9 * FLOOR(MOD(rok, 100) / 10) + 7 * MOD(rok, 10) + 3 * FLOOR(miesiac / 10) + 1 * MOD(miesiac, 10) + 9 * FLOOR(dzien / 10) + 7 * MOD(dzien, 10) + 3 * rand1 + 1 * rand2 + 9 * rand3 + 7 * rand4; 
+	  SET PESEL = CONCAT(rok_format,miesiac,dzien, rand1, rand2, rand3, rand4,mod(liczba_kontrolna, 10));
+	  SET wiek = YEAR(CURDATE()) - rok;
+
+	  CASE
+	  WHEN wiek IN (1, 2) THEN
+		 SET wzrost = (10 + (RAND() * 35));
+		 SET waga = FLOOR(0.5 + (RAND() * 3));
+		 SET rozmiar_buta = 4;
+	  WHEN wiek BETWEEN 3 AND 6 THEN
+		 SET wzrost = (50 + (RAND() * 50));
+		 SET waga = (20 + (RAND() * 20));
+		 SET rozmiar_buta = FLOOR(15 + (RAND() * 10));
+	  WHEN wiek BETWEEN 7 AND 14 THEN
+		 SET wzrost = (100 + (RAND() * 60));
+		 SET waga = (40 + (RAND() * 30));
+		 SET rozmiar_buta = FLOOR(25 + (RAND() * 10));
+	  ELSE 
+		 SET wzrost = (150 + (RAND() * 60));
+		 SET waga = (60 + (RAND() * 50));
+		 SET rozmiar_buta = FLOOR(35 + (RAND() * 12));
+	  END CASE;
+	  
+	  IF PESEL NOT IN (SELECT Ludzie.PESEL FROM Ludzie) THEN 
+		 INSERT INTO Ludzie
+		 VALUES(PESEL, imie, nazwisko, data_urodzenia, wzrost, waga, rozmiar_buta);
+		 SET counter = counter + 1;
+	  END IF;
+	  
+   END WHILE;
+END$$
+
+DELIMITER ;

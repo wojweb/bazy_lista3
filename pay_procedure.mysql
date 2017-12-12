@@ -1,0 +1,55 @@
+DROP PROCEDURE IF EXISTS pay_procedure;
+
+DELIMITER $$
+
+CREATE PROCEDURE pay_procedure(IN budget INT, IN profession VARCHAR(50))
+BEGIN
+   
+   
+   DECLARE sum FLOAT DEFAULT 0;   
+   DECLARE finished INT DEFAULT 0;
+   DECLARE PESEL_var VARCHAR(11) DEFAULT '';
+   DECLARE pensja_var FLOAT DEFAULT 0;
+
+   DECLARE cursor_Pracownicy CURSOR FOR 
+	  (SELECT PESEL, pensja FROM Pracownicy WHERE zawod = profession);
+
+   DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+
+   CREATE TEMPORARY TABLE temp(
+	  PESEL VARCHAR(11),
+	  message VARCHAR(20)
+   );
+
+   OPEN cursor_Pracownicy;
+    START TRANSACTION;
+   get_payment: LOOP
+	  FETCH cursor_Pracownicy INTO PESEL_var, pensja_var;
+	  IF finished = 1 THEN
+		 LEAVE get_payment;
+	  END IF;
+
+	  SET sum = sum + pensja_var;
+	  IF sum > budget THEN
+		 ROLLBACK;
+		 LEAVE get_payment;
+	  ELSE
+		 INSERT INTO temp VALUES (PESEL_var, "zaplacone");
+	  END IF;
+
+   END LOOP get_payment;
+
+   CLOSE cursor_Pracownicy;
+   COMMIT;   
+
+   IF finished = 1 THEN
+      SELECT * FROM temp;
+   ELSE 
+	  SELECT "I don't have enough money :(" AS Message;
+   END IF;
+   DROP TEMPORARY TABLE temp;
+
+END$$
+
+DELIMITER ;
+   

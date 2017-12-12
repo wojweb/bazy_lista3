@@ -1,0 +1,3 @@
+SELECT zawod, max(pensja), min(pensja)
+FROM Pracownicy
+GROUP BY zawod;

@@ -1,0 +1,23 @@
+DROP PROCEDURE IF EXISTS load_painters; 
+
+DELIMITER $$
+
+CREATE PROCEDURE load_printers (IN num INT(4))
+BEGIN
+   DECLARE counter INT(4) DEFAULT 0;
+   DECLARE PESEL VARCHAR(11) DEFAULT '';
+   DECLARE profession VARCHAR(50) DEFAULT 'malarz';
+
+   DECLARE maxsalary INT(5) DEFAULT 3300;
+   DECLARE minalary INT(5) DEFAULT 2000;
+   DECLARE salary FLOAT UNSIGNED;
+
+   WHILE counter < num DO
+	  SET salary = minsalary + (RAND() * maxsalary);
+	  INSERT INTO Pracownicy VALUES
+		 (PESEL, profession, salary);
+   END WHILE;
+END$$
+
+DELIMITER ;
+	  

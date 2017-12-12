@@ -1,0 +1,31 @@
+DROP PROCEDURE IF EXISTS load_sellers; 
+
+DELIMITER $$
+
+CREATE PROCEDURE load_sellers (IN num INT(4))
+BEGIN
+   DECLARE counter INT(4) DEFAULT 0;
+   DECLARE PESELvar VARCHAR(11) DEFAULT '';
+   DECLARE profession VARCHAR(50) DEFAULT 'sprzedawca';
+
+   DECLARE maxsalary INT(5) DEFAULT 4000;
+   DECLARE minsalary INT(5) DEFAULT 1800;
+   DECLARE salary FLOAT UNSIGNED;
+
+   WHILE counter < num DO
+	  SELECT PESEL INTO PESELvar FROM Ludzie 
+		 WHERE (YEAR(NOW()) - YEAR(data_urodzenia)) BETWEEN 18 and 65 ORDER BY RAND() LIMIT 1;
+	  IF PESELvar NOT IN (SELECT PESEL FROM Pracownicy) THEN
+	  	  SET salary = minsalary + (RAND() * maxsalary);
+
+
+		 INSERT INTO Pracownicy VALUES
+			(PESELvar, profession, salary);
+		 SET counter = counter + 1;
+	  END IF;
+
+   END WHILE;
+END$$
+
+DELIMITER ;
+	  

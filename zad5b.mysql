@@ -1,0 +1,3 @@
+SELECT AVG(p1.pensja) AS "malarz_zarobki"
+FROM Pracownicy p1 CROSS JOIN Pracownicy p2 
+WHERE p1.zawod = "malarz" GROUP BY p1.zawod;

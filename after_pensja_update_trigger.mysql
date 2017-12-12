@@ -1,0 +1,23 @@
+DROP TRIGGER IF EXISTS after_pensja_update;
+CREATE TABLE IF NOT EXISTS `pensja_log`(
+   PESEL VARCHAR(11),
+   pensja_stara FLOAT,
+   pensja_nowa FLOAT,
+   data_zmiany DATE
+);
+
+DELIMITER $$
+
+CREATE TRIGGER after_pensja_update
+   AFTER UPDATE ON Pracownicy
+   FOR EACH ROW
+BEGIN
+   INSERT INTO `pensja_log`
+   SET PESEL = OLD.PESEL,
+	  pensja_stara = OLD.pensja,
+	  pensja_nowa = NEW.pensja,
+	  data_zmiany = NOW();
+END$$
+
+DELIMITER ;
+   
